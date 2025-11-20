@@ -1,0 +1,54 @@
+
+{
+  "servidores": [
+    {
+      "id": 1,
+      "capacidade": 3
+    },
+    {
+      "id": 2,
+      "capacidade": 2
+    },
+    {
+      "id": 3,
+      "capacidade": 1
+    }
+  ],
+  "requisicoes": [
+    {
+      "id": 101,
+      "tipo": "visao_computacional",
+      "prioridade": 1,
+      "tempo_exec": 3,
+      "chegada": 0
+    },
+    {
+      "id": 102,
+      "tipo": "nlp",
+      "prioridade": 3,
+      "tempo_exec": 1,
+      "chegada": 0.5
+    },
+    {
+      "id": 103,
+      "tipo": "voz",
+      "prioridade": 2,
+      "tempo_exec": 2,
+      "chegada": 1
+    },
+    {
+      "id": 104,
+      "tipo": "visao_computacional",
+      "prioridade": 2,
+      "tempo_exec": 4,
+      "chegada": 2
+    },
+    {
+      "id": 105,
+      "tipo": "nlp",
+      "prioridade": 1,
+      "tempo_exec": 1,
+      "chegada": 3
+    }
+  ]
+}
