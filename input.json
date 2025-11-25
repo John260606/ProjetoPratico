@@ -3,11 +3,11 @@
   "servidores": [
     {
       "id": 1,
-      "capacidade": 3
+      "capacidade": 1
     },
     {
       "id": 2,
-      "capacidade": 2
+      "capacidade": 1
     },
     {
       "id": 3,
@@ -19,21 +19,21 @@
       "id": 101,
       "tipo": "visao_computacional",
       "prioridade": 1,
-      "tempo_exec": 3,
+      "tempo_exec": 15,
       "chegada": 0
     },
     {
       "id": 102,
       "tipo": "nlp",
       "prioridade": 3,
-      "tempo_exec": 1,
+      "tempo_exec": 11,
       "chegada": 0.5
     },
     {
       "id": 103,
       "tipo": "voz",
       "prioridade": 2,
-      "tempo_exec": 2,
+      "tempo_exec": 20,
       "chegada": 1
     },
     {
@@ -49,6 +49,13 @@
       "prioridade": 1,
       "tempo_exec": 1,
       "chegada": 3
+    },
+    {
+      "id": 106,
+      "tipo": "visao_computacional",
+      "prioridade": 1,
+      "tempo_exec": 10,
+      "chegada": 0
     }
   ]
 }
