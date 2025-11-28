@@ -14,7 +14,6 @@ def load_input(path):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-# ... (find_best_worker_load function is the same) ...
 def find_best_worker_load(workers):
     free_caps = [w["capacidade"] - w["carga_atual"] for w in workers]
     best = max(range(len(workers)), key=lambda i: free_caps[i])
@@ -31,31 +30,23 @@ def main(input_path):
     worker_queues = []
     workers_meta = []
     result_queue = manager.Queue()
-    
-    # --- NOVO: Cria o semáforo compartilhado ---
-    # Limita a 2 o número de workers que podem estar na seção crítica de cada vez.
-    # Ajuste este valor (o '2') para o limite desejado do seu recurso.
 
-    # iniciar workers (processos)
     processes = []
     for s in servers:
         q = manager.Queue()
         worker_queues.append(q)
         workers_meta.append({ "id": s["id"], "capacidade": s["capacidade"], "carga_atual": 0, "jobs_em_execucao": [] })
         p = mp.Process(target=worker_process,
-                       # Passa o semáforo como argumento adicional
                        args=(s["id"], s["capacidade"], q, result_queue)) 
         p.start()
         processes.append(p)
     
-    # ... (Resto do loop principal, coleta de resultados e finalização são os mesmos do seu master.py original) ...
 
     worker_busy_time = {s["id"]: 0.0 for s in servers}
     worker_last_start = {s["id"]: None for s in servers}
     pending = []
     metrics = {"jobs_total": 0, "completed": 0, "sum_response_time": 0.0, "max_wait": 0.0,}
     job_start_times = {}
-    started_jobs = set()
     arrivals = sorted(requisicoes, key=lambda r: r.get("chegada", 0))
     arrival_i = 0
     start_sim = time.time()
@@ -87,13 +78,29 @@ def main(input_path):
 
         while not result_queue.empty():
             msg = result_queue.get()
-            if msg["event"] == "start": jid = msg["job_id"]; wid = msg["worker_id"]; st = msg.get("start_time", now()); worker_last_start[wid] = st; job_start_times[jid] = st; continue
+           
+            if msg["event"] == "start":
+                jid = msg["job_id"];wid = msg["worker_id"]
+                st = msg.get("start_time", now())
+                worker_last_start[wid] = st; job_start_times[jid] = st
+                continue
+            
             if msg["event"] == "finish":
-                jid = msg["job_id"]; wid = msg["worker_id"]; end = msg["end_time"]
-                if worker_last_start[wid] is not None: worker_busy_time[wid] += end - worker_last_start[wid]; worker_last_start[wid] = None
+                jid = msg["job_id"]; 
+                wid = msg["worker_id"]; 
+                end = msg["end_time"]
+
+                if worker_last_start[wid] is not None:
+                    worker_busy_time[wid] += end - worker_last_start[wid]
+                    worker_last_start[wid] = None
+
                 idx = next(i for i, w in enumerate(workers_meta) if w["id"] == wid)
+
                 workers_meta[idx]["carga_atual"] -= 1
+
                 workers_meta[idx]["jobs_em_execucao"] = [j for j in workers_meta[idx]["jobs_em_execucao"] if j["id"] != jid]
+
+
                 start_time = job_start_times.get(jid, msg.get("start_time", now()))
                 chegada = msg.get("chegada", None)
                 response_time = msg["end_time"] - chegada if chegada is not None else msg["end_time"] - start_time
@@ -124,6 +131,9 @@ def main(input_path):
     print(f"Jobs concluídos: {metrics['completed']}")
     print(f"Tempo médio de resposta: {avg_response:.2f}s")
     print(f"Utilização média da CPU: {util_media * 100:.2f}%")
+    print(f"Throughput: {throughput:.2f} jobs/s")
+    print(f"Tempo máximo de espera: {metrics['max_wait']:.2f}s")
+
 
 
 if __name__ == "__main__":
